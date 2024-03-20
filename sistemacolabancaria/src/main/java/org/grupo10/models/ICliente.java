@@ -1,10 +1,9 @@
 package org.grupo10.models;
 
 public interface ICliente {
-    public String dni = null;
-    public int identificador = 0;
+     String dni = null;
+     int identificador = 0;
+     boolean registrar();
 
-    public boolean registrar();
-    public boolean solicitarTurno();
 
 }
