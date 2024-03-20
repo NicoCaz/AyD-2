@@ -1,4 +1,9 @@
 package org.grupo10.vistas;
+
+import org.grupo10.models.GestionAtencion;
+import org.grupo10.models.ITurno;
+import org.grupo10.models.Turno;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,17 +12,34 @@ import java.awt.event.ActionListener;
 public class Totem extends JFrame {
     private JLabel displayLabel;
     private StringBuilder inputBuffer;
+    private GestionAtencion gestionAtencion;
 
-    public Totem() {
+    public Totem(GestionAtencion gestionAtencion) {
+        this.gestionAtencion = gestionAtencion;
+        this.inputBuffer = new StringBuilder();
+
+        setupFrame();
+
+        JPanel mainPanel = createMainPanel();
+        setContentPane(mainPanel);
+    }
+
+    private void setupFrame() {
         setTitle("Numeric Keypad");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(350, 400);
         setLocationRelativeTo(null);
+    }
 
+    private JPanel createMainPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel keypadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
-        JPanel bottomPanel = new JPanel(new BorderLayout());
+        mainPanel.add(createDisplayPanel(), BorderLayout.NORTH);
+        mainPanel.add(createKeypadPanel(), BorderLayout.CENTER);
+        mainPanel.add(createSideButtonPanel(), BorderLayout.SOUTH);
+        return mainPanel;
+    }
 
+    private JPanel createDisplayPanel() {
         JPanel displayPanel = new JPanel(new BorderLayout(5, 5));
         displayPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         displayPanel.setPreferredSize(new Dimension(200, 60));
@@ -27,45 +49,54 @@ public class Totem extends JFrame {
         displayLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         displayPanel.add(displayLabel, BorderLayout.CENTER);
 
+        return displayPanel;
+    }
+
+    private JPanel createKeypadPanel() {
+        JPanel keypadPanel = new JPanel(new GridLayout(4, 3, 5, 5)); // Grid layout para botones numéricos
+
         JButton[] numButtons = new JButton[10];
-        for (int i = 0; i < 9; i++) {
-            numButtons[i] = new JButton(String.valueOf(i + 1));
-            numButtons[i].addActionListener(new NumericButtonListener());
+        for (int i = 1; i <= 9; i++) {
+            numButtons[i] = createNumericButton(String.valueOf(i));
             keypadPanel.add(numButtons[i]);
         }
-        numButtons[9] = new JButton("0");
-        numButtons[9].addActionListener(new NumericButtonListener());
-        keypadPanel.add(numButtons[9]);
+        numButtons[0] = createNumericButton("0");
+        keypadPanel.add(numButtons[0]);
 
-        inputBuffer = new StringBuilder();
-
-        JButton acceptButton = new JButton("Aceptar");
-        acceptButton.setBackground(Color.GREEN);
-        acceptButton.setForeground(Color.WHITE);
-        acceptButton.addActionListener(new AcceptButtonListener());
-
-        JButton cancelButton = new JButton("Cancelar");
-        cancelButton.setBackground(Color.RED);
-        cancelButton.setForeground(Color.WHITE);
-        cancelButton.addActionListener(new CancelButtonListener());
-
-        JPanel sideButtonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        sideButtonPanel.add(acceptButton);
-        sideButtonPanel.add(cancelButton);
-
+        // Botón de borrar un dígito
         JButton backButton = new JButton("<--");
         backButton.setBackground(Color.RED);
         backButton.setForeground(Color.WHITE);
         backButton.addActionListener(new BackButtonListener());
+        keypadPanel.add(backButton);
 
-        bottomPanel.add(keypadPanel, BorderLayout.CENTER);
-        bottomPanel.add(backButton, BorderLayout.EAST);
+        return keypadPanel;
+    }
 
-        mainPanel.add(displayPanel, BorderLayout.NORTH);
-        mainPanel.add(bottomPanel, BorderLayout.CENTER);
-        mainPanel.add(sideButtonPanel, BorderLayout.SOUTH);
+    private JButton createNumericButton(String label) {
+        JButton button = new JButton(label);
+        button.addActionListener(new NumericButtonListener());
+        return button;
+    }
 
-        setContentPane(mainPanel);
+    private JPanel createSideButtonPanel() {
+        JPanel sideButtonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+
+        JButton acceptButton = createSideButton("Aceptar", Color.GREEN, new AcceptButtonListener());
+        JButton cancelButton = createSideButton("Cancelar", Color.RED, new CancelButtonListener());
+
+        sideButtonPanel.add(acceptButton);
+        sideButtonPanel.add(cancelButton);
+
+        return sideButtonPanel;
+    }
+
+    private JButton createSideButton(String label, Color bgColor, ActionListener listener) {
+        JButton button = new JButton(label);
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.addActionListener(listener);
+        return button;
     }
 
     private class NumericButtonListener implements ActionListener {
@@ -105,41 +136,53 @@ public class Totem extends JFrame {
             boolean isValid = true; // Cambia esta condición según tus criterios de validación
 
             if (isValid) {
-                JDialog ticketDialog = new JDialog(Totem.this, "Ticket", true);
-                JPanel ticketPanel = new JPanel(new BorderLayout());
-                JLabel ticketLabel = new JLabel("Su número de ticket es: 12345", SwingConstants.CENTER);
-                ticketLabel.setFont(new Font("Arial", Font.BOLD, 16));
-                ticketPanel.add(ticketLabel, BorderLayout.CENTER);
-
-                ticketDialog.setContentPane(ticketPanel);
-                ticketDialog.pack();
-                ticketDialog.setLocationRelativeTo(Totem.this);
-                ticketDialog.setVisible(true);
-
-                // Cerrar el diálogo después de 5 segundos
-                Timer timer = new Timer(5000, event -> ticketDialog.dispose());
-                timer.setRepeats(false);
-                timer.start();
+                ITurno nuevoTurno = new Turno(inputValue);
+                gestionAtencion.agregarTurno(nuevoTurno);
+                showTicketDialog("Su número de ticket es: " + Turno.cantidadDeTurnos);
             } else {
-                JDialog errorDialog = new JDialog(Totem.this, "DNI incorrecto", true);
-                JPanel errorPanel = new JPanel(new BorderLayout());
-                JLabel errorLabel = new JLabel("DNI incorrecto", SwingConstants.CENTER);
-                errorLabel.setFont(new Font("Arial", Font.BOLD, 16));
-                errorPanel.add(errorLabel, BorderLayout.CENTER);
-
-                JButton okButton = new JButton("Aceptar");
-                okButton.addActionListener(event -> errorDialog.dispose());
-                errorPanel.add(okButton, BorderLayout.SOUTH);
-
-                errorDialog.setContentPane(errorPanel);
-                errorDialog.pack();
-                errorDialog.setLocationRelativeTo(Totem.this);
-                errorDialog.setVisible(true);
+                showErrorDialog("DNI incorrecto");
             }
         }
     }
 
+    private void showErrorDialog(String message) {
+        JDialog errorDialog = new JDialog(this, "Error", true);
+        JLabel errorLabel = new JLabel(message, SwingConstants.CENTER);
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JButton okButton = new JButton("Aceptar");
+        okButton.addActionListener(event -> errorDialog.dispose());
+
+        JPanel errorPanel = new JPanel(new BorderLayout());
+        errorPanel.add(errorLabel, BorderLayout.CENTER);
+        errorPanel.add(okButton, BorderLayout.SOUTH);
+
+        errorDialog.setContentPane(errorPanel);
+        errorDialog.pack();
+        errorDialog.setLocationRelativeTo(this);
+        errorDialog.setVisible(true);
+    }
+
+    private void showTicketDialog(String message) {
+        JDialog ticketDialog = new JDialog(this, "Ticket", true);
+        JLabel ticketLabel = new JLabel(message, SwingConstants.CENTER);
+        ticketLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JPanel ticketPanel = new JPanel(new BorderLayout());
+        ticketPanel.add(ticketLabel, BorderLayout.CENTER);
+
+        ticketDialog.setContentPane(ticketPanel);
+        ticketDialog.pack();
+        ticketDialog.setLocationRelativeTo(this);
+        ticketDialog.setVisible(true);
+
+        // Cerrar el diálogo después de 5 segundos
+        Timer timer = new Timer(5000, event -> ticketDialog.dispose());
+        timer.setRepeats(false);
+        timer.start();
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Totem().setVisible(true));
+        GestionAtencion gestionAtencion = GestionAtencion.getInstance(5); // Cambia el número
     }
 }
