@@ -4,11 +4,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class NumericKeypad extends JFrame {
+public class Totem extends JFrame {
     private JLabel displayLabel;
     private StringBuilder inputBuffer;
 
-    public NumericKeypad() {
+    public Totem() {
         setTitle("Numeric Keypad");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(350, 400);
@@ -105,7 +105,7 @@ public class NumericKeypad extends JFrame {
             boolean isValid = true; // Cambia esta condición según tus criterios de validación
 
             if (isValid) {
-                JDialog ticketDialog = new JDialog(NumericKeypad.this, "Ticket", true);
+                JDialog ticketDialog = new JDialog(Totem.this, "Ticket", true);
                 JPanel ticketPanel = new JPanel(new BorderLayout());
                 JLabel ticketLabel = new JLabel("Su número de ticket es: 12345", SwingConstants.CENTER);
                 ticketLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -113,7 +113,7 @@ public class NumericKeypad extends JFrame {
 
                 ticketDialog.setContentPane(ticketPanel);
                 ticketDialog.pack();
-                ticketDialog.setLocationRelativeTo(NumericKeypad.this);
+                ticketDialog.setLocationRelativeTo(Totem.this);
                 ticketDialog.setVisible(true);
 
                 // Cerrar el diálogo después de 5 segundos
@@ -121,7 +121,7 @@ public class NumericKeypad extends JFrame {
                 timer.setRepeats(false);
                 timer.start();
             } else {
-                JDialog errorDialog = new JDialog(NumericKeypad.this, "DNI incorrecto", true);
+                JDialog errorDialog = new JDialog(Totem.this, "DNI incorrecto", true);
                 JPanel errorPanel = new JPanel(new BorderLayout());
                 JLabel errorLabel = new JLabel("DNI incorrecto", SwingConstants.CENTER);
                 errorLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -133,13 +133,13 @@ public class NumericKeypad extends JFrame {
 
                 errorDialog.setContentPane(errorPanel);
                 errorDialog.pack();
-                errorDialog.setLocationRelativeTo(NumericKeypad.this);
+                errorDialog.setLocationRelativeTo(Totem.this);
                 errorDialog.setVisible(true);
             }
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new NumericKeypad().setVisible(true));
+        SwingUtilities.invokeLater(() -> new Totem().setVisible(true));
     }
 }
