@@ -10,4 +10,5 @@ public interface ITurno {
      int box = 0;
 
 
+     int getNumero();
 }

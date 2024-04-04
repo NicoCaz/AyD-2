@@ -10,6 +10,9 @@ public class Turno implements ITurno{
         this.numeroTurno=Turno.cantidadDeTurnos;
         this.dni=dni;
     }
+    public int getNumero(){
+        return this.numeroTurno;
+    }
 
 
 }
